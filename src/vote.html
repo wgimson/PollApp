@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<!------------------------CORDOVA STUFF------------------------------->
+		<meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <!-------------------------------------------------------------------->
+        <title>Vote</title>
+		<link rel="stylesheet" href="css/formee-structure.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="css/formee-style.css" type="text/css" media="screen" /> 
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+		<script src='https://cdn.firebase.com/v0/firebase.js'></script>
+		<script type="text/javascript" src="js/vote.js"></script>
+        <script type="text/javascript" src="js/formee.js"></script>
+		<script>
+			///////////////////////////////////////////////////////////////////
+			// GLOBAL VARIABLES
+			///////////////////////////////////////////////////////////////////
+			var numVotedFor = 0;
+
+			///////////////////////////////////////////////////////////////////
+			// FUNCTIONS TO RUN WHEN PAGE FIRST RENDERS 
+			///////////////////////////////////////////////////////////////////
+			$(document).ready(function() {
+				var curPhoneNumber = setCurPhoneNumber();
+				hideElections();
+				hideNominees();
+				clearOldPollContents();
+				var polls = new Firebase('https://poll-database.firebaseio.com/Polls');
+				polls.once('value', function(pollsSnapshot) {
+					pollsSnapshot.forEach(function(child) {
+						var type = child.name();
+						if (type == "NumPolls")
+						{
+							// Do nothing
+							;
+						}
+						else 
+						{
+							var curPoll = polls.child(type);
+							curPoll.once('value', function(curPollSnapshot) {
+								var pollName = curPollSnapshot.val().Name;
+								var btnPoll = document.createElement('button');
+								var txt = document.createTextNode(pollName);
+								btnPoll.appendChild(txt);
+								//btnPoll.className('formee-button');
+								btnPoll.addEventListener('click', function(e) {
+									e.preventDefault();
+									selectPoll(curPoll, curPhoneNumber);
+									//verifyVoterAndSelectPoll(type, curPhoneNumber);
+								});
+								$('div#divPollListing div#polls').append(btnPoll);
+								$('div#divPollListing div#polls > button').addClass('formee-button');
+							});
+						}
+					});
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<!---------------------------CORDOVA STUFF---------------------->
+		<script type="text/javascript" src="cordova-2.7.0.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+        
+		<div id="divPollListing">
+			<form class="formee" action="">
+				<fieldset id="polls">
+					<legend>Welcome to Voting Portal! Select a Poll!</legend>
+					<div class="grid-12-12" id="polls">
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="divElectionListing">
+			<form class="formee" action="">
+				<fieldset id="elections">
+					<legend>Welcome to Voting Portal! Select an Election!</legend>
+					<div class="grid-12-12" id="elections">
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="divNomineeListing">
+			<form class="formee" action="">
+				<fieldset id="nominees">
+					<legend></legend>
+					<div class="grid-12-12" id="nominees">
+					</div>
+					<div class="formee-msg-success">
+					</div>
+					<div class="formee-msg-info">
+					</div>
+				</fieldset>
+			</form>
+		</div>
+	</body>
+</html>
