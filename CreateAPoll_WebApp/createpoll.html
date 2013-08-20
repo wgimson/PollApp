@@ -1,0 +1,330 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="js/formee.js"></script>
+		<script src='https://cdn.firebase.com/v0/firebase.js'></script>
+		<script type="text/javascript" src="js/createpoll.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
+        <link rel="Stylesheet" href="css/jquery-ui-1.10.3.custom.min.css" type="text/css" />
+		<link rel="stylesheet" href="css/formee-structure.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="css/formee-style.css" type="text/css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="css/table-styles.css" />
+		<style type="text/css">
+		* {margin:0;padding:0;}
+		/* fix  ff bugs */
+		form:after, div:after, ol:after, ul:after, li:after, dl:after {
+			content:".";
+			display:block;
+			clear:both;
+			visibility:hidden;
+			height:0;
+			overflow:hidden;
+		}
+		body {background: #fff; font: normal 10px/1.1em Arial,Sans-Serif;margin:0;padding:0;}
+		form {clear:both;}
+		.container {margin:0 auto; height:100%;padding:0 40px;}
+		.footer, .footer a {color:#fff;}
+		.left {float:left;}
+		.right {float:right;}
+		.topbar {
+			background: #fafafa;
+			padding: 10px 30px;
+		  border-bottom:1px solid #e9e9e9;
+		}
+		.topbar a{
+			color:#777;
+			font-size:1.4em;
+			text-decoration: none;
+		}
+		.topbar a:hover{
+			color:#69a4d0;
+			text-decoration: underline;
+		}
+		.formeebar {
+			background: #f5f5f5;
+			padding:30px;
+		  border-bottom:1px solid #e9e9e9;
+		  margin-bottom:40px;
+		}
+		.formeebar a {color:#fff;font-size:1.4em;text-decoration: none;}
+		.formeebar h1 {
+		  clear:both;
+		  float:left;
+		}
+		.formeebar h1 a{
+		  background: transparent url(img/formee-logo.png) no-repeat left top;
+		  text-indent:-9999px;
+		  overflow: hidden;
+		  width:147px;
+		  height: 50px;
+		  display: block;
+		}
+		.formeebar h2 {
+			color:#520026;
+			font-size:2.4em;
+			font-weight:normal;
+			 float:right;
+			 display:inline;
+			 margin-top:20px;
+		}
+
+		.link-to {
+			font-size:2.4em;
+			letter-spacing:-.02em;
+			line-height:1em;
+			color:#EA0076;
+			float:right;
+			margin-bottom:2em;
+		}
+		/* footer */
+		.footer {background: #520026;padding:30px 0;margin-top:40px;color:#fff;}
+		.footer p {line-height:1.1em; font-size:1.2em; margin-bottom:.3%;}
+		.footer a {color:#F0CF73;font-size:1.4em;text-decoration: none;}
+		</style>
+		<script>
+			///////////////////////////////////////////////////////////////////
+			///////////////////////////////////////////////////////////////////
+			// FOR WHEN THE DOCUMENT IS FIRST RENDERED
+			///////////////////////////////////////////////////////////////////
+			$(document).ready(function() {
+				var pollsRef = new Firebase('https://poll-database.firebaseio.com/Polls');
+
+				$('div#divCreateElections').hide();
+				$('div#divAddNomination').hide();
+				$('div#divEditElectionDetails').hide();
+				$('div#divAddVoters').hide();
+				$('div#divOptions').hide();
+				//returnHome();
+
+				// Append poll create button so we only have to instantiate 
+				// one instance of our Firebase repo
+				var btnCreatePoll = $("<button>CREATE POLL</button>")
+				$(btnCreatePoll).attr({ 
+					id: 'btnCreatePoll',
+					'class': 'formee-button'
+				});
+				$(btnCreatePoll).click(function() {
+					createPoll(pollsRef);
+					return false;
+				});
+				$('div#divCreatePoll div.grid-12-12').append(btnCreatePoll);
+				var btnEditPolls = $('<button>EDIT EXISTING POLLS</button>');
+				$(btnEditPolls).attr({
+					id: 'btnEditPolls',
+					'class': 'formee-button'
+				});
+				$(btnEditPolls).click(function() {
+					displayCurrentPollsForEditing(pollsRef);
+					hideCreatePollShowEditPoll();
+					return false;
+				});
+				$('div#divCreatePoll div.grid-12-12').append(btnEditPolls);
+				//displayCurrentPollsForEditing(pollsRef);
+
+				formatPollsDiv();
+				formatElectionsDiv();
+				formatVotersDiv();
+				formatNominationsDiv();
+			});
+		</script>
+	</head>
+	<body>
+		<div id="divCreatePoll">
+			<form class="formee" action="">
+				<fieldset id="createPoll">
+					<legend>CREATE A POLL</legend>
+					<div class="formee-msg-error">
+					</div>
+					<div class="grid-12-12">
+						<label>Enter Name of New Poll:</label>
+						<input type="text" id="txtCreatePoll" class="formee-small" value="" />
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="divEditPoll">
+			<form class="formee" action="">
+				<fieldset id="selectPoll">
+					<legend>SELECT A POLL</legend>
+					<div class="formee-msg-success">
+					</div>
+					<div class="grid-12-12" id="appendPolls">
+					</div>
+				</fieldset>
+				<fieldset id="changePollName">
+					<legend>CHANGE POLL NAME</legend>
+					<div class="formee-msg-success">
+					</div>
+                    <div class="formee-msg-error">
+                    </div>
+					<div class="grid-12-12">
+					</div>
+				</fieldset>
+				<fieldset id="selectElection">
+					<legend>EDIT ELECTION</legend>
+					<div class="formee-msg-success">
+					</div>
+					<div class="grid-12-12" id="appendElections">
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="divEditElectionDetails">
+			<form class="formee" action="">
+				<fieldset id="editElectionDetails">
+					<legend>EDIT ELECTION DETAILS</legend>
+					<div class="formee-msg-success">
+					</div>
+					<div class="formee-msg-error">
+					</div>
+					<div id="electionName" class="grid-4-12">
+						<label>Enter New Election Name</label>
+					</div>
+					<div id="numberToElect" class="grid-4-12">
+						<label>Enter New Number of Nominees to Elect</label>
+					</div>
+					<div id="submitElectionChanges" class="grid-4-12">
+					</div>
+				</fieldset>
+				<fieldset id="addNominations">
+					<legend>NOMINATIONS</legend>
+					<div class="formee-msg-success">
+					</div>
+					<div class="formee-msg-error">
+					</div>
+					<div class="grid-12-12" id="nominationsTable">
+					</div>
+				</fieldset>
+				<fieldset id="addVoters">
+					<legend>VOTERS</legend>
+					<div class="formee-msg-success">
+					</div>
+					<div class="formee-msg-error">
+					</div>
+					<div class="grid-12-12" id="votersTable">
+					</div>
+				</fieldset>
+				<fieldset id="editExisting">
+					<legend>EDIT EXISTING NOMINEE OR VOTER</legend>
+					<div class="formee-msg-success">
+					</div>
+					<div class="formee-msg-error">
+					</div>
+					<div id="editExistingNominee" class="grid-12-12">
+						<label>Nominees</label>
+					</div>
+					<div id="editExistingVoter" class="grid-12-12 clear">
+						<label>Voters</label>
+					</div>
+					<div class="grid-12-12" id="nomineeDetails">
+					</div>
+					<div class="grid-12-12" id="voterDetails">
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="divCreateElections">
+			<form class="formee" action="">
+				<fieldset>
+					<legend>CREATE AN ELECTION</legend>
+					<div class="grid-4-12">
+						<label>Enter Election Name:</label>
+						<input type="text" id="txtCreateElection" value="" />
+					</div>
+					<div class="grid-4-12">
+						<label>Enter Number of Candidates to Elect:</label>
+						<input type="text" id="txtNumElect" value="" />
+					</div>
+					<br />
+					<br />
+					<div class="grid-4-12" id="submitButton">
+						<!--<button id="btnCreateElection" class="formee-button" 
+								onclick="addElection(); return false;">CREATE ELECTION</button>-->
+					</div>
+                    <div class="grid-6-12">
+                        <label>Select Begin Date:</label>
+                        <input type="text" id="datePickerStart" class="formee-small" />
+                    </div>
+                    <div class="grid-6-12">
+                        <label>Select End Date:</label>
+                        <input type="text" id="datePickerEnd" class="formee-small" />
+                    </div>
+                    <div class="grid-4-12">
+                    </div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="divAddNomination">
+			<form class="formee" action="">
+				<fieldset id="appendNominations">
+					<legend>Enter Nominee Name</legend>
+                    <div class="formee-msg-success">
+                    </div>
+                    <div class="formee-msg-error">
+                    </div>"
+					<div class="grid-5-12" id="appendNominations">
+						<label>Name</label>
+						<input type="text" class="txtAddNomination" value="" />
+					</div>
+					<div class="grid-5-12"></div>
+					<div class="grid-12-12">
+						<!--<button id="btnAddNomination" class="formee-button" 
+							    onclick="addNomination(); return false;">ADD NOMINATION</button>
+						<button id="btnSubmitNominations" class="formee-button" 
+								onclick="submitNominations(); return false;">SUBMIT NOMINATION(S)</button>-->
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="divAddVoters">
+			<form class="formee" action="">
+				<fieldset id="appendVoters">
+					<legend>Enter Voter Name and Phone Number:</legend>
+						<div class="formee-msg-success">
+						</div>
+						<div class="formee-msg-error">
+						</div>
+						<div class="grid-4-12" id="appendVoterName">
+							<label>Voter Name</label>
+							<input type="text" class="formee-large" id="txtAddName" value="" />
+						</div>
+						<div class="grid-4-12" id="appendVoterNumber">
+							<label>Voter Phone Number</label>
+							<input type="text" class="formee-large" id="txtAddNumber" value="" />
+						</div>
+						<div class="grid-4-12">
+						</div>
+						<div class="grid-12-12" id="buttons">
+						</div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="divOptions">
+			<form class="formee" action="">
+				<fieldset id="options">
+					<legend>Poll created! What would you like to do now?</legend>
+					<div class="grid-12-12" id="options">
+						<button id="btnCreatePoll" class="formee-button" 
+							    onclick="formatPollsDiv(); return false;">CREATE POLL</button>
+					    <button id="btnCreateElection" class="formee-button" 
+					    	    onclick="formatAndDisplayElectionsDiv(); return false;">ADD ELECTION</button>
+					    <button id="btnAddNomination" class="formee-button" 
+					    		onclick="formatAndDisplayNominationsDiv(); return false;">ADD NOMINEE(S)</button>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div id="homeDiv">
+			<form class="formee" action="">
+				<fieldset>
+					<legend>Go Home</legend>
+					<div class="grid-12-12">
+						<button id="btnReturnHome" class="formee-button" onclick="returnHome(); return false;">HOME</button>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+	</body>
+</html>
