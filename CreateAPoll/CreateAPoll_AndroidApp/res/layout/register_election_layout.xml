@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textViewRegisterElectionSelect"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="@string/register_election_select" />
+
+    <Spinner
+        android:id="@+id/spinner_select_register_election"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textViewEnterPollKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="@string/enter_poll_key" />
+
+    <EditText
+        android:id="@+id/edit_poll_key"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="numberPassword" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/btn_select_register_election"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="80dp"
+        android:onClick="registerVoter"
+        android:text="@string/btn_select_register_election" />
+
+</LinearLayout>

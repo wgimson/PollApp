@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Election Results</string>
+    <string name="action_settings">Settings</string>
+	<string name="btnAddPollName">Add A Poll!</string>
+	<string name="newPoll">I Am A New Poll</string>
+	<string name="selectPoll">Select Poll</string>
+	<string name="select_election">Select Election</string>
+	<string name="select_register_poll">Select Poll</string>
+	<string name="btn_select_register_election">Select Election</string>
+	<string name="edit_poll_key">Enter Poll Key</string>
+	<string name="register_name">Enter Your Name:</string>
+	<string name="button_register_name">Register!</string>
+	<string name="text_view_register_poll">Select Poll:</string>
+	<string name="register_election_select">Select Election:</string>
+	<string name="enter_poll_key">Enter Poll Key:</string>
+	<string name="select_election_vote">Select Election:</string>
+	<string name="text_view_select_poll_vote">Select Poll:</string>
+
+</resources>
